@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فلتر تاسي الفني</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --panel2:#f0eee8; --line:#e2dfd6; --ink:#1d1f1c; --muted:#6b6f68;
+  --accent:#0f6b4f; --accent-ink:#ffffff; --up:#13804f; --down:#c0392b; --warn:#b7791f; --warn-bg:#fdf3e1;
+  --g5:#0d6e47; --g4:#2f8f5b; --g3:#7aa83b; --g2:#c49a2c; --g1:#a3a6a0;
+  --f-trend:#2563a8; --f-momentum:#8e44ad; --f-rs:#0f8a8a; --f-volume:#c06a1b; --f-contraction:#6b7d2a; --f-breakout:#b03a5b;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121412; --panel:#1b1e1b; --panel2:#232723; --line:#2f342f; --ink:#e8eae5; --muted:#9aa096;
+    --accent:#3fbf8a; --accent-ink:#0c1a13; --up:#41c785; --down:#ef6f5e; --warn:#e3b04b; --warn-bg:#2d2616;
+    --g5:#3fcf8e; --g4:#5cb87e; --g3:#9cc35a; --g2:#d9b24a; --g1:#5d625b;
+    --f-trend:#6ea6e6; --f-momentum:#b783d4; --f-rs:#4cc3c3; --f-volume:#e59a52; --f-contraction:#a7bd57; --f-breakout:#e07a98;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121412; --panel:#1b1e1b; --panel2:#232723; --line:#2f342f; --ink:#e8eae5; --muted:#9aa096;
+  --accent:#3fbf8a; --accent-ink:#0c1a13; --up:#41c785; --down:#ef6f5e; --warn:#e3b04b; --warn-bg:#2d2616;
+  --g5:#3fcf8e; --g4:#5cb87e; --g3:#9cc35a; --g2:#d9b24a; --g1:#5d625b;
+  --f-trend:#6ea6e6; --f-momentum:#b783d4; --f-rs:#4cc3c3; --f-volume:#e59a52; --f-contraction:#a7bd57; --f-breakout:#e07a98;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.55}
+.num,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.wrap{max-width:1380px;margin:0 auto;padding:0 16px}
+header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hrow{display:flex;align-items:center;gap:12px;padding:12px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-inline-end:auto}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:13px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--up)} .dot.bad{background:var(--down)} .dot.warn{background:var(--warn)}
+.btn{border:1px solid var(--line);background:var(--panel);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.icon{padding:7px 10px}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs button{border:0;background:none;padding:10px 16px;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+main{padding:20px 0 60px}
+.tab{display:none}.tab.active{display:block}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:var(--radius);background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);margin-bottom:14px;font-size:14px}
+.banner b{color:var(--warn)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.card .k{color:var(--muted);font-size:13px}
+.card .v{font-size:26px;font-weight:600;margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel h3{margin:0;font-size:15px}
+.phead{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.phead .sp{margin-inline-start:auto}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.toolbar input[type=search],.toolbar select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.toolbar input[type=search]{min-width:200px;flex:1}
+.tbl-wrap{overflow:auto;max-height:70vh}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--panel2);font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;user-select:none;z-index:1}
+th.nosort{cursor:default}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel2)}
+tr.dim td{opacity:.5}
+.up{color:var(--up)} .down{color:var(--down)}
+.score{display:flex;align-items:center;gap:8px;min-width:120px}
+.sbar{flex:1;height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;min-width:60px}
+.sbar i{display:block;height:100%;border-radius:3px}
+.grade{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
+.g5{background:var(--g5)}.g4{background:var(--g4)}.g3{background:var(--g3)}.g2{background:var(--g2)}.g1{background:var(--g1)}
+.fams{display:flex;gap:3px;align-items:flex-end;height:22px}
+.fams span{width:9px;border-radius:2px 2px 0 0;background:var(--line);position:relative}
+.fams span i{position:absolute;bottom:0;left:0;right:0;border-radius:2px 2px 0 0}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+@media (max-width:980px){.grid2{grid-template-columns:1fr}}
+#chart{height:430px;direction:ltr}
+#eqchart{height:320px;direction:ltr}
+.stockhead{display:flex;align-items:center;gap:16px;padding:16px;flex-wrap:wrap}
+.ring{--p:0;width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--c,var(--accent)) calc(var(--p)*1%),var(--panel2) 0);display:grid;place-items:center}
+.ring b{width:58px;height:58px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:20px}
+.fam-block{padding:12px 16px;border-bottom:1px solid var(--line)}
+.fam-block:last-child{border-bottom:0}
+.fam-title{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:6px}
+.fam-title .pts{margin-inline-start:auto;font-size:13px}
+.cond{display:grid;grid-template-columns:18px 1fr auto;gap:8px;font-size:13.5px;padding:3px 0;align-items:center}
+.ck{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.ck.full{background:var(--up)} .ck.part{background:var(--warn)} .ck.none{background:var(--line);color:var(--muted)}
+.muted{color:var(--muted)} .small{font-size:13px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.field{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:10px 0;border-bottom:1px dashed var(--line);align-items:center}
+.field:last-child{border-bottom:0}
+.field label{font-weight:500}
+.field .hint{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.field input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.field input[type=number],.field select{width:120px;padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.pbody{padding:6px 16px 14px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+@media (max-width:700px){.metrics{grid-template-columns:1fr}}
+.metrics>div{padding:12px 16px;border-inline-start:1px solid var(--line)}
+.metrics>div:first-child{border-inline-start:0}
+.mrow{display:flex;justify-content:space-between;padding:4px 0;font-size:14px;border-bottom:1px dotted var(--line)}
+.mrow:last-child{border:0}
+.mtitle{font-weight:600;margin-bottom:6px}
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 85%,transparent);display:grid;place-items:center;z-index:50}
+.overlay .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 26px;min-width:280px;text-align:center;box-shadow:var(--shadow)}
+.prog{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.method td,.method th{white-space:normal;vertical-align:top}
+.method td.mono{white-space:nowrap;font-size:12.5px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line)}
+body:not(.has-snap) .snapcol{display:none!important}
+.badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11.5px;font-weight:600;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);margin-inline-start:6px}
+footer{color:var(--muted);font-size:12.5px;text-align:center;padding:24px 16px;border-top:1px solid var(--line)}
+.hidden{display:none!important}
+@media (max-width:640px){
+  .brand{font-size:16px} th,td{padding:7px 8px} .hide-sm{display:none} #chart{height:340px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand"><span class="logo" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+      </span>فلتر تاسي الفني</div>
+      <span class="chip" id="srcChip"><span class="dot"></span><span>جاري التحميل…</span></span>
+      <span class="chip" id="regimeChip"><span class="dot"></span><span>حالة السوق</span></span>
+      <label class="btn" title="ملف لحظي من تيكرشارت (Excel/CSV) أو ملفات أسعار تاريخية">رفع ملف<input type="file" id="csvInput" accept=".xlsx,.xls,.csv,.txt" multiple hidden></label>
+      <button class="btn icon" id="themeBtn" title="تبديل الوضع الفاتح/الداكن" aria-label="تبديل الوضع">◐</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="results" aria-selected="true">النتائج</button>
+      <button role="tab" data-tab="stock" aria-selected="false">تفاصيل السهم</button>
+      <button role="tab" data-tab="backtest" aria-selected="false">الاختبار التاريخي</button>
+      <button role="tab" data-tab="settings" aria-selected="false">الإعدادات والأوزان</button>
+      <button role="tab" data-tab="method" aria-selected="false">المنهجية</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="banners"></div>
+
+  <!-- النتائج -->
+  <section class="tab active" id="tab-results">
+    <div class="cards" id="sumCards"></div>
+    <div class="panel">
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="ابحث بالرمز أو الاسم…">
+        <select id="secSel"><option value="">كل القطاعات</option></select>
+        <select id="gradeSel">
+          <option value="60">من متوسط فأعلى (60+)</option>
+          <option value="70">من جيد فأعلى (70+)</option>
+          <option value="80">من قوي فأعلى (80+)</option>
+          <option value="90">ممتاز جداً فقط (90+)</option>
+          <option value="0">كل المؤهلة</option>
+          <option value="-1">الكل مع غير المؤهلة</option>
+        </select>
+        <label class="snapcol small" style="display:inline-flex;gap:5px;align-items:center"><input type="checkbox" id="netPos" style="accent-color:var(--accent)">سيولة صافية موجبة</label>
+        <label class="snapcol small" style="display:inline-flex;gap:5px;align-items:center"><input type="checkbox" id="liveBrk" style="accent-color:var(--accent)">اختراق لحظي</label>
+        <div class="legend" id="famLegend"></div>
+        <button class="btn" id="exportBtn">تصدير CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="resTbl">
+          <thead><tr>
+            <th data-k="rank" class="nosort">#</th>
+            <th data-k="s">الرمز</th>
+            <th data-k="n">الاسم</th>
+            <th data-k="sec" class="hide-sm">القطاع</th>
+            <th data-k="close">الإغلاق</th>
+            <th data-k="chg">التغير</th>
+            <th data-k="live" class="snapcol">اللحظي</th>
+            <th data-k="net" class="snapcol">صافي السيولة</th>
+            <th data-k="score">الدرجة</th>
+            <th data-k="grade" class="nosort">التصنيف</th>
+            <th data-k="fam" class="nosort hide-sm">العائلات</th>
+            <th data-k="rsi" class="hide-sm">RSI</th>
+            <th data-k="ext50" class="hide-sm">عن م50</th>
+            <th data-k="value20" class="hide-sm">السيولة (مليون)</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- السهم -->
+  <section class="tab" id="tab-stock">
+    <div class="panel" style="margin-bottom:16px">
+      <div class="stockhead" id="stockHead"></div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="phead"><h3>الرسم البياني</h3><span class="sp legend"><span><i style="background:#2563a8"></i>م50</span><span><i style="background:#c06a1b"></i>م150</span><span><i style="background:#8e44ad"></i>م200</span><span><i style="background:#b03a5b"></i>مستوى الاختراق</span></span></div>
+        <div id="chart"></div>
+      </div>
+      <div class="panel" id="bdPanel"></div>
+    </div>
+  </section>
+
+  <!-- الاختبار التاريخي -->
+  <section class="tab" id="tab-backtest">
+    <div class="banner" style="background:var(--panel2);border-color:var(--line)"><div class="small">
+      يدخل النظام على <b style="color:inherit">افتتاح اليوم التالي</b> لتجاوز الدرجة العتبة، بوقف خسارة وهدف مبنيين على ATR ومدة احتفاظ قصوى، مع احتساب العمولة والانزلاق. الفترة الأولى للبناء والأخيرة اختبار خارج العينة. عدّل المعاملات من تبويب الإعدادات.
+    </div></div>
+    <div class="panel" style="margin-bottom:16px">
+      <div class="phead"><h3>النتائج</h3><span class="muted small" id="btInfo"></span><span class="sp"></span><button class="btn primary" id="btRun">تشغيل الاختبار</button></div>
+      <div class="metrics" id="btMetrics"><div class="muted small" style="padding:16px">اضغط «تشغيل الاختبار».</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:16px">
+      <div class="phead"><h3>منحنى رأس المال مقابل تاسي</h3><span class="sp legend"><span><i style="background:var(--accent)"></i>الفلتر</span><span><i style="background:var(--muted)"></i>تاسي</span></span></div>
+      <div id="eqchart"></div>
+    </div>
+    <div class="panel" style="margin-bottom:16px">
+      <div class="phead"><h3>مساهمة كل عائلة (Ablation)</h3><span class="muted small">أداء الفلتر بعد حذف كل عائلة. إذا تحسن الأداء بعد الحذف فالعائلة لا تضيف قيمة على بياناتك.</span><span class="sp"></span><button class="btn" id="abRun">تحليل المساهمة</button></div>
+      <div class="tbl-wrap"><table id="abTbl"><thead><tr><th class="nosort">النسخة</th><th class="nosort">الصفقات</th><th class="nosort">نسبة النجاح</th><th class="nosort">معامل الربحية</th><th class="nosort">العائد السنوي</th><th class="nosort">أقصى تراجع</th><th class="nosort">معامل الربحية خارج العينة</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h3>سجل الصفقات</h3><span class="sp"></span><button class="btn" id="trExport">تصدير CSV</button></div>
+      <div class="tbl-wrap" style="max-height:420px"><table id="trTbl"><thead><tr><th class="nosort">الرمز</th><th class="nosort">الاسم</th><th class="nosort">الدخول</th><th class="nosort">الخروج</th><th class="nosort">سعر الدخول</th><th class="nosort">سعر الخروج</th><th class="nosort">العائد</th><th class="nosort">الأيام</th><th class="nosort">السبب</th><th class="nosort">الدرجة</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- الإعدادات -->
+  <section class="tab" id="tab-settings">
+    <div class="settings">
+      <div class="panel"><div class="phead"><h3>أوزان العائلات</h3><span class="sp muted small">تُطبَّع تلقائياً إلى 100</span></div><div class="pbody" id="wFields"></div></div>
+      <div class="panel"><div class="phead"><h3>الفلترة والعقوبات</h3></div><div class="pbody" id="fFields"></div></div>
+      <div class="panel"><div class="phead"><h3>الاختبار التاريخي</h3></div><div class="pbody" id="bFields"></div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn primary" id="applyBtn">تطبيق</button>
+      <button class="btn" id="resetBtn">استعادة الافتراضي</button>
+      <span class="muted small" id="applyMsg" style="align-self:center"></span>
+    </div>
+  </section>
+
+  <!-- المنهجية -->
+  <section class="tab" id="tab-method">
+    <div class="panel" style="margin-bottom:16px"><div class="pbody" style="padding-top:14px" id="methodIntro"></div></div>
+    <div class="panel" style="margin-bottom:16px">
+      <div class="phead"><h3>جدول الشروط</h3></div>
+      <div class="tbl-wrap" style="max-height:none"><table class="method" id="methodTbl"><thead><tr><th class="nosort">الشرط</th><th class="nosort">العائلة</th><th class="nosort">المدارس</th><th class="nosort">الوزن الافتراضي</th><th class="nosort">المعادلة</th><th class="nosort">التوقيت</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="panel"><div class="pbody" style="padding-top:14px" id="methodNotes"></div></div>
+  </section>
+</main>
+
+<footer>أداة تحليلية تعليمية وليست توصية بالشراء أو البيع. الأداء التاريخي لا يضمن النتائج المستقبلية، وقرار الاستثمار مسؤوليتك.</footer>
+
+<div class="overlay" id="overlay"><div class="box"><div id="ovText">جاري تحميل البيانات…</div><div class="prog"><i id="ovBar"></i></div></div></div>
+
+<script>
+/*ENGINE*/
+</script>
+<script>
+/*APP*/
+</script>
+</body>
+</html>

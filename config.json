@@ -1,0 +1,30 @@
+{
+  "start_date": "2015-01-01",
+  "yahoo_suffix": ".SR",
+  "index_symbol_yahoo": "^TASI.SR",
+  "index_code": "TASI",
+  "batch_size": 40,
+  "pause_seconds": 2,
+  "max_retries": 3,
+  "overlap_days": 10,
+  "adjust_mismatch_tolerance": 0.005,
+  "price_limit": 0.10,
+  "exclude_nomu": true,
+  "discover_ranges": [
+    [1010, 1899],
+    [2001, 2399],
+    [3001, 3099],
+    [4001, 4399],
+    [5110, 5110],
+    [6001, 6099],
+    [7010, 7299],
+    [8010, 8399]
+  ],
+  "fallback": {
+    "provider": "eodhd",
+    "api_key_env": "EODHD_API_KEY",
+    "exchange_suffix": ".SR",
+    "index_symbol": "TASI.INDX",
+    "note": "تحقق من دعم المزود للسوق السعودي ومن رمز المؤشر قبل الاعتماد عليه"
+  }
+}

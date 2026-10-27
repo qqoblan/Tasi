@@ -1,0 +1,88 @@
+name: تحديث بيانات تاسي
+
+on:
+  schedule:
+    # يومياً من الأحد إلى الخميس الساعة 4:00 مساءً بتوقيت الرياض (13:00 UTC) بعد إغلاق السوق
+    - cron: "0 13 * * 0-4"
+    # أسبوعياً يوم الجمعة 9:00 صباحاً بتوقيت الرياض: اكتشاف الأسهم الجديدة وإعادة جلب كامل
+    - cron: "0 6 * * 5"
+  # عند رفع ملف لحظي (تيكرشارت) إلى مجلد inbox: تعريب الأسماء وإضافة الأسهم ونشر اللقطة
+  push:
+    branches: [main]
+    paths: ["inbox/**"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "نوع التشغيل"
+        type: choice
+        options: [update, full, discover]
+        default: update
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: تثبيت المتطلبات
+        run: pip install -r requirements.txt
+
+      - name: جلب البيانات
+        env:
+          EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ "${{ github.event.schedule }}" = "0 6 * * 5" ]; then MODE="discover"; fi
+          # التشغيل الأول (لا توجد بيانات بعد) يكون جلباً كاملاً مع الاكتشاف
+          if [ ! -f data/meta.json ]; then MODE="discover"; fi
+          case "$MODE" in
+            full)     python fetch_data.py --full ;;
+            discover) python fetch_data.py --discover --full ;;
+            *)        python fetch_data.py ;;
+          esac
+
+      - name: حفظ البيانات في المستودع
+        run: |
+          git config user.name "tasi-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data symbols.json
+          if git diff --cached --quiet; then
+            echo "لا توجد تغييرات."
+          else
+            git commit -m "تحديث البيانات $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}   # آخر نسخة بعد حفظ البيانات
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
